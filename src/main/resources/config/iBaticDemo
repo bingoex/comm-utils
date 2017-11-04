@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="GB2312"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+<sqlMap namespace="micro_timeline">
+
+    <resultMap id="TimeLineRMv2"
+               class="com.microtao.linkstream.common.timeline.domain.TLETimeLineDO">
+        <result column="id" property="id" />
+        <result column="gmt_create" property="gmtCreate" />
+        <result column="gmt_modified" property="gmtModified" />
+        <result column="namespace" property="namespace" />
+        <result column="owner_id" property="ownerId" />
+        <result column="doc_id" property="docId" />
+        <result column="doc_index" property="docIndex" />
+        <result column="sorter1" property="sorter1" />
+        <result column="sorter2" property="sorter2" />
+        <result column="status" property="status" />
+        <result column="indexs" property="indexs" />
+        <result column="sorters" property="sorters" />
+    </resultMap>
+
+    <!--
+         1)SQL功能        : 根据namespace、owner_id、doc_index、status查询Timeline记录
+         2)场景                : 前台
+         3)频率                : 200次/秒
+         4)缓存                : 有
+         5)返回数据量 : 列表
+         6)开发负责人 : 朱停
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <select id="TLETimeLineDAOV2.selectByOwner" parameterClass="java.util.Map"
+            resultMap="TimeLineRMv2">
+        SELECT
+        id,gmt_create,gmt_modified,namespace,owner_id,doc_id,doc_index,sorter1,sorter2,status,indexs,sorters
+        FROM
+        micro_timeline
+        WHERE
+        namespace=#namespace#
+        AND owner_id=#ownerId#
+        <isNotNull prepend="AND" property="docIndex">
+            doc_index IN
+            <iterate property="docIndex" open="(" close=")" conjunction=",">
+                #docIndex[]#
+            </iterate>
+        </isNotNull>
+        <isNotNull prepend="AND" property="statusList">
+            status IN
+            <iterate property="statusList" open="(" close=")" conjunction=",">
+                #statusList[]#
+            </iterate>
+        </isNotNull>
+        <isNotEqual property="beginSorter1" compareValue="0">
+            <isNotNull prepend="AND" property="beginSorter1">
+                <![CDATA[sorter1<#beginSorter1#]]>
+            </isNotNull>
+        </isNotEqual>
+        <isNotEqual property="beginId" compareValue="0">
+            <isNotNull prepend="AND" property="beginId">
+                <![CDATA[doc_id<#beginId#]]>
+            </isNotNull>
+        </isNotEqual>
+        <isNotEqual property="endSorter1" compareValue="0">
+            <isNotNull prepend="AND" property="endSorter1">
+                <![CDATA[sorter1>#endSorter1#]]>
+            </isNotNull>
+        </isNotEqual>
+        <isNotEqual property="endId" compareValue="0">
+            <isNotNull prepend="AND" property="endId">
+                <![CDATA[doc_id>#endId#]]>
+            </isNotNull>
+        </isNotEqual>
+        ORDER BY
+        sorter1 DESC, doc_id DESC
+        <isNotNull prepend=" " property="pageSize">
+            LIMIT
+            #pageSize#
+        </isNotNull>
+    </select>
+
+    <!--
+         1)SQL功能        : 根据namespace和doc_id查询Timeline记录
+         2)场景                : 前台
+         3)频率                : 200次/秒
+         4)缓存                : 有
+         5)返回数据量 : 列表
+         6)开发负责人 : 朱停
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <select id="TLETimeLineDAOV2.selectByDoc" parameterClass="java.util.Map"
+            resultMap="TimeLineRMv2">
+        SELECT
+        id,gmt_create,gmt_modified,namespace,owner_id,doc_id,doc_index,sorter1,sorter2,status,indexs,sorters
+        FROM
+        micro_timeline
+        WHERE
+        namespace=#namespace#
+        AND doc_id=#docId#
+        AND owner_id=#ownerId#
+        ORDER BY
+        id DESC
+    </select>
+
+    <!--
+        1)SQL功能        : 插入一条Timeline记录
+        2)场景                : 前台
+        3)频率                : 大 （ 每小时10000次）
+        4)缓存                : 无
+        5)返回数据量 : 列表
+        6)开发负责人 : 厦京
+        7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <insert id="TLETimeLineDAOV2.insert" parameterClass="java.util.List">
+        INSERT INTO
+        micro_timeline(
+        gmt_create,gmt_modified,namespace,owner_id,doc_id,doc_index,sorter1,sorter2,indexs,sorters
+        )
+        VALUES
+        <iterate conjunction=",">
+            <![CDATA[
+				(
+					now(),
+					now(),
+					#list[].namespace#,
+					#list[].ownerId#,
+					#list[].docId#,
+					#list[].docIndex#,
+					#list[].sorter1#,
+					#list[].sorter2#,
+					#list[].indexs#,
+					#list[].sorters#
+				)
+				]]>
+        </iterate>
+    </insert>
+
+    <!--
+         1)SQL功能        : 更新Timeline记录
+         2)场景                : 前台
+         3)频率                : 小 （ 每小时100次）
+         4)缓存                : 有
+         5)返回数据量 : 列表
+         6)开发负责人 : 厦京
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <update id="TLETimeLineDAOV2.update" parameterClass="java.util.Map">
+        UPDATE micro_timeline
+        SET
+        gmt_modified=now()
+        <isNotNull prepend="," property="index1">
+            doc_index=#index1#
+        </isNotNull>
+        <isNotNull prepend="," property="sorter1">
+            sorter1=#sorter1#
+        </isNotNull>
+        <isNotNull prepend="," property="sorter2">
+            sorter2=#sorter2#
+        </isNotNull>
+        <isNotNull prepend="," property="status">
+            status=#status#
+        </isNotNull>
+        <isNotNull prepend="," property="indexs">
+            indexs=#indexs#
+        </isNotNull>
+        <isNotNull prepend="," property="sorters">
+            sorters=#sorters#
+        </isNotNull>
+        WHERE
+        id IN
+        <iterate property="idList" open="(" close=")" conjunction=",">
+            #idList[]#
+        </iterate>
+        AND owner_id=#ownerId#
+    </update>
+
+    <!--
+         1)SQL功能        : 按照用户维度删除Timeline记录
+         2)场景                : 前台
+         3)频率                : 小 （ 每小时10次）
+         4)缓存                : 有
+         5)返回数据量 : 列表
+         6)开发负责人 : 厦京
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <update id="TLETimeLineDAOV2.deleteByOwner" parameterClass="java.util.Map">
+        UPDATE
+        micro_timeline
+        SET
+        gmt_modified=now(),status=1
+        WHERE
+        namespace=#namespace#
+        AND owner_id=#ownerId#
+
+        <isNotNull prepend="AND" property="docIndex">
+            AND doc_index IN
+            <iterate property="docIndex" open="(" close=")" conjunction=",">
+                #docIndex[]#
+            </iterate>
+        </isNotNull>
+        AND status!=1
+    </update>
+
+    <!--
+         1)SQL功能        : 按doc维度删除Timeline记录
+         2)场景                : 前台
+         3)频率                : 小 （ 每小时10次）
+         4)缓存                : 有
+         5)返回数据量 : 列表
+         6)开发负责人 : 厦京
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <update id="TLETimeLineDAOV2.deleteByDoc" parameterClass="java.util.Map">
+        UPDATE
+        micro_timeline
+        SET
+        gmt_modified=now(),status=1
+        WHERE
+        namespace=#namespace#
+        AND owner_id=#ownerId#
+        AND doc_id=#docId#
+        <isNotNull prepend="AND" property="docIndex">
+            AND doc_index IN
+            <iterate property="docIndex" open="(" close=")" conjunction=",">
+                #docIndex[]#
+            </iterate>
+        </isNotNull>
+    </update>
+
+    <!--
+         1)SQL功能        : 按id删除Timeline记录（物理删除）
+         2)场景                : 订正数据
+         3)频率                : 极小
+         4)缓存                : 无
+         5)返回数据量 : 列表
+         6)开发负责人 : 厦京
+         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
+    -->
+    <update id="TLETimeLineDAOV2.deleteDocById" parameterClass="java.util.Map">
+        DELETE FROM
+        micro_timeline
+        WHERE
+        owner_id=#ownerId#
+        AND id=#id#
+    </update>
+
+    <!-- 本地缓存加载专用  -->
+    <select id="TLETimeLineDAOV2.selectByOwner4LocalCache" parameterClass="java.util.Map"
+            resultMap="TimeLineRMv2">
+        SELECT
+        id,gmt_create,gmt_modified,namespace,owner_id,doc_id,doc_index,sorter1,sorter2,status,indexs,sorters
+        FROM
+        micro_timeline
+        WHERE
+        namespace=#namespace#
+        AND owner_id=#ownerId#
+        <isNotNull prepend="AND" property="statusList">
+            status IN
+            <iterate property="statusList" open="(" close=")" conjunction=",">
+                #statusList[]#
+            </iterate>
+        </isNotNull>
+
+        <isNotNull prepend="AND" property="beginDocIndex">
+            <![CDATA[doc_index>#beginDocIndex#]]>
+        </isNotNull>
+        <isNotNull prepend="AND" property="endDocIndex">
+            <![CDATA[doc_index<#endDocIndex#]]>
+        </isNotNull>
+        <isNotEqual property="endSorter1" compareValue="0">
+            <isNotNull prepend="AND" property="endSorter1">
+                <![CDATA[sorter1>#endSorter1#]]>
+            </isNotNull>
+        </isNotEqual>
+        ORDER BY
+        sorter1 DESC, doc_id DESC
+        <isNotNull prepend=" " property="pageSize">
+            LIMIT
+            #pageSize#
+        </isNotNull>
+    </select>
+</sqlMap>
