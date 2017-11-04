@@ -24,8 +24,6 @@
          3)频率                : 200次/秒
          4)缓存                : 有
          5)返回数据量 : 列表
-         6)开发负责人 : 朱停
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <select id="TLETimeLineDAOV2.selectByOwner" parameterClass="java.util.Map"
             resultMap="TimeLineRMv2">
@@ -82,8 +80,6 @@
          3)频率                : 200次/秒
          4)缓存                : 有
          5)返回数据量 : 列表
-         6)开发负责人 : 朱停
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <select id="TLETimeLineDAOV2.selectByDoc" parameterClass="java.util.Map"
             resultMap="TimeLineRMv2">
@@ -105,8 +101,6 @@
         3)频率                : 大 （ 每小时10000次）
         4)缓存                : 无
         5)返回数据量 : 列表
-        6)开发负责人 : 厦京
-        7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <insert id="TLETimeLineDAOV2.insert" parameterClass="java.util.List">
         INSERT INTO
@@ -138,8 +132,6 @@
          3)频率                : 小 （ 每小时100次）
          4)缓存                : 有
          5)返回数据量 : 列表
-         6)开发负责人 : 厦京
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <update id="TLETimeLineDAOV2.update" parameterClass="java.util.Map">
         UPDATE micro_timeline
@@ -177,8 +169,6 @@
          3)频率                : 小 （ 每小时10次）
          4)缓存                : 有
          5)返回数据量 : 列表
-         6)开发负责人 : 厦京
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <update id="TLETimeLineDAOV2.deleteByOwner" parameterClass="java.util.Map">
         UPDATE
@@ -204,8 +194,6 @@
          3)频率                : 小 （ 每小时10次）
          4)缓存                : 有
          5)返回数据量 : 列表
-         6)开发负责人 : 厦京
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <update id="TLETimeLineDAOV2.deleteByDoc" parameterClass="java.util.Map">
         UPDATE
@@ -230,8 +218,6 @@
          3)频率                : 极小
          4)缓存                : 无
          5)返回数据量 : 列表
-         6)开发负责人 : 厦京
-         7)给出动态条件里面的必传条件，和常用组合，以及每个条件的过滤性好坏
     -->
     <update id="TLETimeLineDAOV2.deleteDocById" parameterClass="java.util.Map">
         DELETE FROM
