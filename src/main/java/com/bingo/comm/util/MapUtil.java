@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import org.apache.commons.collections.MapUtils;
 
-public class MapUtil extends MapUtils{
+public class MapUtil extends Thread{
 
     static final TypeReference<Map<String, String>> typeReference = new TypeReference<Map<String, String>>() {
     };
